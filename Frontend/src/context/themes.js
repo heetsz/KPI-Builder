@@ -1,0 +1,33 @@
+export const lightTheme = {
+  background: 'bg-gray-100',
+  cardBg: 'bg-white',
+  text: 'text-gray-900',
+  textSecondary: 'text-gray-600',
+  border: 'border-gray-200',
+  sidebar: 'bg-white',
+  sidebarHover: 'hover:bg-gray-100',
+  header: 'bg-white',
+  headerBorder: 'border-gray-200',
+  chartBackground: 'white',
+  gridLines: '#E5E7EB',
+  tooltipBg: 'rgba(255, 255, 255, 0.95)',
+  tooltipBorder: '#E5E7EB',
+  axisTick: '#6B7280',
+};
+
+export const darkTheme = {
+  background: 'bg-gray-900',
+  cardBg: 'bg-gray-800',
+  text: 'text-gray-100',
+  textSecondary: 'text-gray-400',
+  border: 'border-gray-700',
+  sidebar: 'bg-gray-800',
+  sidebarHover: 'hover:bg-gray-700',
+  header: 'bg-gray-800',
+  headerBorder: 'border-gray-700',
+  chartBackground: '#1f2937',
+  gridLines: '#374151',
+  tooltipBg: 'rgba(31, 41, 55, 0.95)',
+  tooltipBorder: '#4B5563',
+  axisTick: '#9CA3AF',
+};

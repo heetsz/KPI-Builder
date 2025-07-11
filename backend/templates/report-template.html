@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{reportTitle}} - {{companyName}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #dbeafe;
+            --primary-dark: #1e40af;
+            --secondary-color: #fbbf24;
+            --secondary-light: #fef3c7;
+            --text-color: #1e293b;
+            --text-light: #64748b;
+            --bg-color: #f8fafc;
+            --white: #ffffff;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 16px;
+            --box-radius: 12px;
+        }
+
+        html,
+        body {
+            background: var(--bg-color);
+            font-family: 'Poppins', Arial, sans-serif;
+            color: var(--text-color);
+            font-size: 10pt;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 800px;
+            margin: 32px auto 48px auto;
+            background: var(--white);
+            box-shadow: var(--card-shadow);
+            border-radius: var(--border-radius);
+            padding-bottom: 32px;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        /* Header */
+        .report-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            color: var(--white);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 40px 50px 30px 50px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 220px;
+            height: 220px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .report-header::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .report-title {
+            font-size: 2.4em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .company-name {
+            font-size: 1.3em;
+            font-weight: 500;
+            opacity: 0.95;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .company-name i {
+            margin-right: 8px;
+        }
+
+        .report-date {
+            position: absolute;
+            top: 40px;
+            right: 50px;
+            font-size: 1em;
+            font-weight: 400;
+            opacity: 0.85;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .report-date i {
+            margin-right: 6px;
+        }
+
+        /* Section */
+        .section {
+            margin: 40px 50px 20px 50px;
+            padding: 0;
+        }
+
+        .section-header {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: 0.3px;
+            margin-bottom: 16px;
+            border-left: 5px solid var(--secondary-color);
+            padding: 8px 0 8px 14px;
+            background: linear-gradient(90deg, var(--primary-light) 0%, rgba(246, 248, 250, 0.4) 100%);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header i {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        .section-content {
+            background: var(--white);
+            border-radius: var(--box-radius);
+            padding: 22px 26px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 10px;
+            overflow-wrap: break-word;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        /* Company Overview Table */
+        .company-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 18px;
+            background: var(--white);
+            border-radius: var(--box-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-top: 10px;
+        }
+
+        .company-table th,
+        .company-table td {
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        .company-table th {
+            background: var(--primary-color);
+            color: var(--white);
+            font-weight: 600;
+            font-size: 1em;
+            border: none;
+        }
+
+        .company-table th:first-child {
+            border-top-left-radius: 8px;
+        }
+
+        .company-table th:last-child {
+            border-top-right-radius: 8px;
+        }
+
+        .company-table tr:nth-child(even) td {
+            background: #f1f5f9;
+        }
+
+        .company-table tr:nth-child(odd) td {
+            background: var(--white);
+        }
+
+        .company-table td {
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.98em;
+        }
+
+        .company-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .company-table tr:last-child td:first-child {
+            border-bottom-left-radius: 8px;
+        }
+
+        .company-table tr:last-child td:last-child {
+            border-bottom-right-radius: 8px;
+        }
+
+        /* Cell with icon */
+        .cell-with-icon {
+            display: flex;
+            align-items: center;
+        }
+
+        .cell-with-icon i {
+            margin-right: 8px;
+            color: var(--primary-color);
+            width: 18px;
+            text-align: center;
+        }
+
+        /* Elevator Pitch */
+        .elevator-pitch {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--white) 100%);
+            border-left: 5px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin: 18px 0 0 0;
+            font-size: 1.05em;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .elevator-pitch::after {
+            content: '\f02e';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 6em;
+            color: rgba(37, 99, 235, 0.05);
+            transform: rotate(15deg);
+        }
+
+        .elevator-pitch-label {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .elevator-pitch-label i {
+            margin-right: 8px;
+        }
+
+        /* SWOT Analysis */
+        .swot-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 24px;
+            margin-bottom: 10px;
+        }
+
+        .swot-box {
+            background: var(--white);
+            border-radius: var(--box-radius);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            display: flex;
+            flex-direction: column;
+            min-height: 180px;
+            transition: all 0.3s ease;
+        }
+
+        .swot-box:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .swot-header {
+            font-weight: 700;
+            font-size: 1.08em;
+            padding: 12px 0;
+            text-align: center;
+            letter-spacing: 0.5px;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swot-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .swot-header i {
+            margin-right: 8px;
+        }
+
+        .strengths .swot-header {
+            background: #10b981;
+        }
+
+        .weaknesses .swot-header {
+            background: #f43f5e;
+        }
+
+        .opportunities .swot-header {
+            background: #3b82f6;
+        }
+
+        .threats .swot-header {
+            background: #f97316;
+        }
+
+        .swot-content {
+            padding: 18px 22px 14px 22px;
+            flex: 1;
+        }
+
+        .swot-content ul {
+            margin: 0;
+            padding-left: 0;
+            list-style-type: none;
+            font-size: 0.98em;
+        }
+
+        .swot-content li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 28px;
+            line-height: 1.5;
+        }
+
+        .swot-content li::before {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            font-size: 0.9em;
+        }
+
+        .strengths .swot-content li::before {
+            content: '\f00c';
+            color: #10b981;
+        }
+
+        .weaknesses .swot-content li::before {
+            content: '\f00d';
+            color: #f43f5e;
+        }
+
+        .opportunities .swot-content li::before {
+            content: '\f0eb';
+            color: #3b82f6;
+        }
+
+        .threats .swot-content li::before {
+            content: '\f071';
+            color: #f97316;
+        }
+
+        /* Numbered List */
+        .numbered-list {
+            list-style-type: none;
+            counter-reset: item;
+            padding-left: 0;
+        }
+
+        .numbered-list li {
+            counter-increment: item;
+            margin-bottom: 16px;
+            position: relative;
+            padding-left: 40px;
+            font-size: 1em;
+        }
+
+        .numbered-list li:before {
+            content: counter(item);
+            position: absolute;
+            left: 0;
+            top: 2px;
+            background: var(--primary-color);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        /* Citations */
+        .citations {
+            font-size: 0.97em;
+            color: var(--text-light);
+        }
+
+        .citations ol {
+            padding-left: 24px;
+        }
+
+        .citations li {
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .citation-url {
+            color: var(--primary-color);
+            text-decoration: underline;
+            word-break: break-all;
+            display: inline-block;
+            margin-top: 3px;
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge i {
+            margin-right: 4px;
+            font-size: 0.9em;
+        }
+
+        /* Custom styling for competitive positioning */
+        .competitive-positioning p {
+            position: relative;
+            padding-left: 5px;
+            border-left: 3px solid var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        /* Page Break Utilities */
+        .page-break {
+            display: block;
+            height: 0;
+            margin: 0;
+            border: none;
+            padding: 0;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        /* Footer */
+        .report-footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--text-light);
+            font-size: 0.9em;
+            margin-top: auto;
+            border-top: 1px solid #e2e8f0;
+            margin: 0 50px;
+        }
+
+        /* Responsive for PDF and small screens */
+        @media print {
+
+            html,
+            body {
+                background: var(--white);
+            }
+
+            .page {
+                box-shadow: none;
+                border-radius: 0;
+                margin: 0;
+                width: 100vw;
+                min-height: 100vh;
+                max-width: 100vw;
+                padding-bottom: 0;
+                height: auto;
+                overflow: visible;
+            }
+
+            .section {
+                margin: 30px 30px 0 30px;
+            }
+
+            .report-header {
+                border-radius: 0;
+                padding: 30px 30px 20px 30px;
+            }
+
+            .swot-box:hover {
+                transform: none;
+                box-shadow: var(--card-shadow);
+            }
+
+            .page-break {
+                display: block;
+                page-break-after: always;
+                break-after: page;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .page {
+                max-width: 100vw;
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .section,
+            .report-header {
+                margin-left: 12px;
+                margin-right: 12px;
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .report-title {
+                font-size: 1.6em;
+            }
+
+            .company-name,
+            .report-date {
+                font-size: 1em;
+            }
+
+            .section-header {
+                font-size: 1em;
+                padding-left: 8px;
+            }
+
+            .section-content {
+                padding: 16px 14px;
+            }
+
+            .swot-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .report-date {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Report Header -->
+        <div class="report-header">
+            <div class="report-title">{{reportTitle}}</div>
+            <div class="company-name"><i class="fas fa-building"></i> {{companyName}}</div>
+            <div class="report-date"><i class="far fa-calendar-alt"></i> {{generationDate}}</div>
+        </div>
+
+        <!-- Executive Summary Section -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-chart-line"></i> Executive Summary
+            </div>
+            <div class="section-content">
+                <p>{{executiveSummary}}</p>
+            </div>
+        </div>
+
+        <!-- Company Overview Section -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-info-circle"></i> Company Overview
+            </div>
+            <div class="section-content">
+                <table class="company-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-industry"></i> Industry</td>
+                            <td>{{companyOverview.industry}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-rocket"></i> Stage</td>
+                            <td>{{companyOverview.stage}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-calendar"></i> Founded</td>
+                            <td>{{companyOverview.founded}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-users"></i> Employees</td>
+                            <td>{{companyOverview.employees}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-box"></i> Product</td>
+                            <td>{{companyOverview.product}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-bullseye"></i> Target Market</td>
+                            <td>{{companyOverview.targetMarket}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-cogs"></i> Technology Readiness</td>
+                            <td>{{companyOverview.technologyReadinessLevel}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-globe"></i> TAM</td>
+                            <td>{{companyOverview.tam}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-map"></i> SAM</td>
+                            <td>{{companyOverview.sam}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-map-marker-alt"></i> SOM</td>
+                            <td>{{companyOverview.som}}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-with-icon"><i class="fas fa-chart-bar"></i> Market CAGR</td>
+                            <td>{{companyOverview.marketCAGR}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- <div class="page-break"></div> -->
+                
+                <div class="elevator-pitch">
+                    <div class="elevator-pitch-label"><i class="fas fa-bullhorn"></i> Elevator Pitch</div>
+                    <span>{{companyOverview.elevatorPitch}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <div class="page">
+        <!-- SWOT Analysis Section -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-chess"></i> SWOT Analysis
+            </div>
+            <div class="section-content">
+                <div class="swot-container">
+                    <!-- Strengths -->
+                    <div class="swot-box strengths">
+                        <div class="swot-header"><i class="fas fa-medal"></i> STRENGTHS</div>
+                        <div class="swot-content">
+                            <ul>
+                                {{#each swotAnalysis.strengths}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Weaknesses -->
+                    <div class="swot-box weaknesses">
+                        <div class="swot-header"><i class="fas fa-exclamation-circle"></i> WEAKNESSES</div>
+                        <div class="swot-content">
+                            <ul>
+                                {{#each swotAnalysis.weaknesses}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-break"></div>
+        
+        <div class="section">
+            <div class="section-header" style="visibility:hidden;">
+                <i class="fas fa-chess"></i> SWOT Analysis (Continued)
+            </div>
+            <div class="section-content">
+                <div class="swot-container">
+                    <!-- Opportunities -->
+                    <div class="swot-box opportunities">
+                        <div class="swot-header"><i class="fas fa-lightbulb"></i> OPPORTUNITIES</div>
+                        <div class="swot-content">
+                            <ul>
+                                {{#each swotAnalysis.opportunities}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Threats -->
+                    <div class="swot-box threats">
+                        <div class="swot-header"><i class="fas fa-bolt"></i> THREATS</div>
+                        <div class="swot-content">
+                            <ul>
+                                {{#each swotAnalysis.threats}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Competitive Positioning Section -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-trophy"></i> Competitive Positioning
+            </div>
+            <div class="section-content competitive-positioning">
+                <p>{{competitivePositioning}}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <div class="page">
+        <!-- Growth Tactics Section -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-arrow-trend-up"></i> Growth Tactics
+            </div>
+            <div class="section-content">
+                <ol class="numbered-list">
+                    {{#each growthTactics}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ol>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- KPI Action Items Section -->
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-tasks"></i> KPI Action Items
+            </div>
+            <div class="section-content">
+                <ol class="numbered-list">
+                    {{#each kpiActionItems}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Citations Section (if available) -->
+        {{#if citations.length}}
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-book"></i> Citations
+            </div>
+            <div class="section-content citations">
+                <ol>
+                    {{#each citations}}
+                    <li>
+                        <strong>{{title}}</strong>
+                        {{#if source}}, {{source}}{{/if}}
+                        {{#if date}}, {{date}}{{/if}}
+                        {{#if url}}
+                        <br><a href="{{url}}" class="citation-url"><i class="fas fa-link"></i> {{url}}</a>
+                        {{/if}}
+                    </li>
+                    {{/each}}
+                </ol>
+            </div>
+        </div>
+        {{/if}}
+        
+        <!-- Footer -->
+        <div class="report-footer">
+            <p>© {{generationDate}} | {{companyName}} Business Report | Generated on {{generationDate}}</p>
+        </div>
+    </div>
+</body>
+
+</html>
