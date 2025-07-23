@@ -69,10 +69,18 @@ mongoose.connect(process.env.MONGO_URI)
 setInterval(clearExpiredTokens, 3600000);
 
 // Global error handler
+const cors = require('cors');
+
+// CORS middleware should be defined separately
+app.use(cors({
+  origin: "https://kpi-builder-tzml.onrender.com",
+  credentials: true
+}));
+
+// Centralized error-handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
-    cors({ origin: "https://frontend-lud5.onrender.com", credentials: true,
     success: false,
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
