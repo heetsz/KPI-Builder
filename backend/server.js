@@ -72,6 +72,7 @@ setInterval(clearExpiredTokens, 3600000);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
+    cors({ origin: "https://frontend-lud5.onrender.com", credentials: true,
     success: false,
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
