@@ -76,7 +76,7 @@ const InsightsPage = () => {
         setInsightsData(response.data);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch insights');
+        setError('Under Maintenance');
         setLoading(false);
       }
     };
@@ -100,12 +100,12 @@ const InsightsPage = () => {
       </div>
       <p className="text-lg font-medium text-foreground">Error</p>
       <p className="text-md text-muted-foreground mt-2">{error}</p>
-      <button 
+      {/* <button 
         onClick={() => window.location.reload()} 
         className="mt-6 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-      >
-        Retry
-      </button>
+      > */}
+        {/* Retry
+      </button> */}
     </div>
   );
   

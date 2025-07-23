@@ -323,6 +323,7 @@ const CompanyInfoPage = () => {
             >
               Save and Continue to Dashboard
             </button>
+            
           </div>
         </form>
       </div>

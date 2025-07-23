@@ -100,21 +100,23 @@ function App() {
       
       <Route path="/auth/signup" element={
         isAuthenticated 
-          ? (hasCompanyInfo ? <Navigate to="/dashboard" replace /> : <Navigate to="/company-info" replace />)
+          // ? (hasCompanyInfo ? <Navigate to="/dashboard" replace /> : <Navigate to="/company-info" replace />)
+          ? <Navigate to="/dashboard" replace/>
           : <SignupPage />
       } />
 
-      {/* Protected company info route */}
+      {/* Protected company info route
       <Route path="/company-info" element={
         <PrivateRoute>
           {isNewUser && !hasCompanyInfo ? <CompanyInfoPage /> : <Navigate to="/dashboard" replace />}
         </PrivateRoute>
-      } />
+      } /> */}
 
       {/* Protected dashboard routes */}
       <Route path="/dashboard" element={
         <PrivateRoute>
-          {!isNewUser || hasCompanyInfo ? <DashboardLayout /> : <Navigate to="/company-info" replace />}
+          <DashboardLayout />
+          {/* {!isNewUser || hasCompanyInfo ? <DashboardLayout /> : <Navigate to="/company-info" replace />} */}
         </PrivateRoute>
       }>
         <Route index element={<DashboardHome />} />
