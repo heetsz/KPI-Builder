@@ -24,7 +24,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: "https://kpi-builder-tzml.onrender.com",
+  credentials: true
+}));
 app.use(express.json());
 // JWT Configuration
 if (!process.env.JWT_SECRET) {
@@ -69,13 +72,8 @@ mongoose.connect(process.env.MONGO_URI)
 setInterval(clearExpiredTokens, 3600000);
 
 // Global error handler
-const cors = require('cors');
 
 // CORS middleware should be defined separately
-app.use(cors({
-  origin: "https://kpi-builder-tzml.onrender.com",
-  credentials: true
-}));
 
 // Centralized error-handling middleware
 app.use((err, req, res, next) => {
