@@ -93,22 +93,24 @@ function App() {
       } />
       <Route path="help" element={<Help />} />
       
-      /* Auth routes */
+      {/* Auth routes */}
       <Route path="/auth/login" element={
         isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
       } />
-
+      
       <Route path="/auth/signup" element={
-        isAuthenticated
-          ? (hasCompanyInfo
-              ? <Navigate to="/dashboard" replace />
-              : <Navigate to="/company-info" replace />
-            )
+        isAuthenticated 
+          // ? (hasCompanyInfo ? <Navigate to="/dashboard" replace /> : <Navigate to="/company-info" replace />)
+          ? <Navigate to="/dashboard" replace/>
           : <SignupPage />
       } />
 
-      {/* Show CompanyInfoPage as a component if user is authenticated, is new, and has no company info */}
-      {isAuthenticated && isNewUser && !hasCompanyInfo && <CompanyInfoPage />}}
+      {/* Protected company info route
+      <Route path="/company-info" element={
+        <PrivateRoute>
+          {isNewUser && !hasCompanyInfo ? <CompanyInfoPage /> : <Navigate to="/dashboard" replace />}
+        </PrivateRoute>
+      } /> */}
 
       {/* Protected dashboard routes */}
       <Route path="/dashboard" element={
