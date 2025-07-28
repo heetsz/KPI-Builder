@@ -99,9 +99,11 @@ function App() {
       } />
       
       <Route path="/auth/signup" element={
-        isAuthenticated 
-          // ? (hasCompanyInfo ? <Navigate to="/dashboard" replace /> : <Navigate to="/company-info" replace />)
-          ? <Navigate to="/dashboard" replace/>
+        isAuthenticated
+          ? (hasCompanyInfo
+              ? <Navigate to="/dashboard" replace />
+              : <Navigate to="/company-info" replace />
+            )
           : <SignupPage />
       } />
 
