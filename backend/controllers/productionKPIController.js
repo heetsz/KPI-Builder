@@ -1,6 +1,40 @@
 const ProductionKPI = require('../models/productionKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
 
+// Generate dummy production data for demonstration
+const generateDummyProductionData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic production KPI data with trends
+    metrics.set('productionVolume', Math.round(15000 + Math.random() * 8000 + index * 300)); // 15k-23k units, growing
+    metrics.set('productionEfficiency', Math.round((78 + Math.random() * 15 + index * 0.4) * 100) / 100); // 78-93%, improving
+    metrics.set('downtime', Math.round((6 + Math.random() * 8 - index * 0.3) * 100) / 100); // 6-14%, decreasing
+    metrics.set('cycleTime', Math.round((35 + Math.random() * 20 - index * 0.8) * 100) / 100); // 35-55 minutes, decreasing
+    metrics.set('yieldRate', Math.round((94 + Math.random() * 5 + index * 0.15) * 100) / 100); // 94-99%, improving
+    metrics.set('reworkRate', Math.round((4 + Math.random() * 3 - index * 0.1) * 100) / 100); // 4-7%, decreasing
+    metrics.set('scrapRate', Math.round((2.5 + Math.random() * 3 - index * 0.1) * 100) / 100); // 2.5-5.5%, decreasing
+    metrics.set('capacityUtilization', Math.round((75 + Math.random() * 18 + index * 0.5) * 100) / 100); // 75-93%, improving
+    metrics.set('oee', Math.round((70 + Math.random() * 20 + index * 0.6) * 100) / 100); // 70-90%, improving
+    metrics.set('onTimeProductionRate', Math.round((88 + Math.random() * 10 + index * 0.3) * 100) / 100); // 88-98%, improving
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'production',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
+
 /**
 * Upload Production KPI Controller
 */
@@ -121,13 +155,27 @@ exports.getProductionKPI = async (req, res) => {
     const { companyId } = req.params;
 
     const productionKpi = await ProductionKPI.findOne({ companyId });
-    if (!productionKpi) {
-      // Create a new document with default values if none exists
+    if (!productionKpi || !productionKpi.data || productionKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummyProductionData();
+      
+      // Create a new document with dummy data if none exists
       const newProductionKPI = new ProductionKPI({
         companyId,
         department: 'production',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'productionVolume',
+          'productionEfficiency',
+          'downtime',
+          'cycleTime',
+          'yieldRate',
+          'reworkRate',
+          'scrapRate',
+          'capacityUtilization',
+          'oee',
+          'onTimeProductionRate'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
@@ -135,9 +183,14 @@ exports.getProductionKPI = async (req, res) => {
         }
       });
       await newProductionKPI.save();
+      
+      // Format data for charts using the utility function
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newProductionKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 

@@ -1,6 +1,40 @@
 const CustomerGrowthKPI = require('../models/customerGrowthKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
 
+// Generate dummy customer growth data for demonstration
+const generateDummyCustomerGrowthData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic customer growth KPI data with trends
+    metrics.set('customerRetentionRate', Math.round((88 + Math.random() * 8 + index * 0.3) * 100) / 100); // 88-96%, improving
+    metrics.set('customerChurnRate', Math.round((8 + Math.random() * 6 - index * 0.2) * 100) / 100); // 8-14%, decreasing
+    metrics.set('customerLifetimeValue', Math.round(2500 + Math.random() * 1500 + index * 80)); // $2.5k-$4k, growing
+    metrics.set('netPromoterScore', Math.round(45 + Math.random() * 25 + index * 1.2)); // 45-70, improving
+    metrics.set('customerSatisfactionScore', Math.round((4.2 + Math.random() * 0.6 + index * 0.02) * 100) / 100); // 4.2-4.8, improving
+    metrics.set('activeUsers', Math.round(8500 + Math.random() * 3500 + index * 250)); // 8.5k-12k users, growing
+    metrics.set('conversionRate', Math.round((12 + Math.random() * 8 + index * 0.3) * 100) / 100); // 12-20%, improving
+    metrics.set('customerAcquisitionCost', Math.round(180 + Math.random() * 120 - index * 5)); // $180-$300, decreasing
+    metrics.set('onboardingCompletionRate', Math.round((75 + Math.random() * 15 + index * 0.5) * 100) / 100); // 75-90%, improving
+    metrics.set('referralRate', Math.round((8 + Math.random() * 7 + index * 0.2) * 100) / 100); // 8-15%, improving
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'customer-growth',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
+
 
 /**
 * Upload CustomerGrowth KPI Controller
@@ -122,12 +156,26 @@ exports.getCustomerGrowthKPI = async (req, res) => {
     const { companyId } = req.params;
 
     const customerGrowthKpi = await CustomerGrowthKPI.findOne({ companyId });
-    if (!customerGrowthKpi) {
+    if (!customerGrowthKpi || !customerGrowthKpi.data || customerGrowthKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummyCustomerGrowthData();
+      
       const newCustomerGrowthKPI = new CustomerGrowthKPI({
         companyId,
         department: 'customer_growth',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'customerRetentionRate',
+          'customerChurnRate',
+          'customerLifetimeValue',
+          'netPromoterScore',
+          'customerSatisfactionScore',
+          'activeUsers',
+          'conversionRate',
+          'customerAcquisitionCost',
+          'onboardingCompletionRate',
+          'referralRate'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
@@ -135,9 +183,13 @@ exports.getCustomerGrowthKPI = async (req, res) => {
         }
       });
       await newCustomerGrowthKPI.save();
+      
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newCustomerGrowthKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 

@@ -130,6 +130,9 @@ const MarketingDashboardPage = () => {
         
         // Fetch KPI data
         const kpiResponse = await axios.get(`${URL}/api/marketing/kpis/${COMPANY_ID}`);
+        console.log("Full KPI Response:", kpiResponse.data);
+        console.log("KPI Data:", kpiResponse.data.kpis);
+        console.log("Selected KPIs:", kpiResponse.data.selectedKPIs);
         setKpiData(kpiResponse.data.kpis);
         
         // Set the selected KPIs from the API response
@@ -337,6 +340,10 @@ const MarketingDashboardPage = () => {
     }
   };
 
+  // Debug: Log the kpiData to see what we're working with
+  console.log("Current kpiData:", kpiData);
+  console.log("Customer Acquisition Cost data:", kpiData?.customerAcquisitionCost);
+
   const kpiConfigs = [
     {
       id: "customerAcquisitionCost",
@@ -344,7 +351,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.customerAcquisitionCost || [],
       chartType: chartConfigurations.customerAcquisitionCost || "AreaChart",
       color: "#10B981",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "💰"
     },
@@ -354,7 +361,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.returnOnMarketingInvestment || [],
       chartType: chartConfigurations.returnOnMarketingInvestment || "LineChart",
       color: "#8B5CF6",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "📈"
     },
@@ -364,7 +371,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.websiteTraffic || [],
       chartType: chartConfigurations.websiteTraffic || "BarChart",
       color: "#F59E0B",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "🌐"
     },
@@ -374,7 +381,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.conversionRate || [],
       chartType: chartConfigurations.conversionRate || "LineChart",
       color: "#EC4899",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "🎯"
     },
@@ -384,7 +391,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.socialMediaEngagement || [],
       chartType: chartConfigurations.socialMediaEngagement || "RadarChart",
       color: "#6366F1",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "👍"
     },
@@ -394,7 +401,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.emailOpenRate || [],
       chartType: chartConfigurations.emailOpenRate || "LineChart",
       color: "#14B8A6",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "✉️"
     },
@@ -404,7 +411,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.clickThroughRate || [],
       chartType: chartConfigurations.clickThroughRate || "AreaChart",
       color: "#06B6D4",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "👆"
     },
@@ -414,7 +421,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.leadGenerationVolume || [],
       chartType: chartConfigurations.leadGenerationVolume || "BarChart",
       color: "#F43F5E",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "🧲"
     },
@@ -424,7 +431,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.marketingQualifiedLeads || [],
       chartType: chartConfigurations.marketingQualifiedLeads || "LineChart",
       color: "#0EA5E9",
-      xKey: "period",
+      xKey: "month",
       yKey: "value",
       icon: "✅"
     },
@@ -434,7 +441,7 @@ const MarketingDashboardPage = () => {
       data: kpiData?.campaignROI || [],
       chartType: chartConfigurations.campaignROI || "PieChart",
       color: "#8B5CF6",
-      xKey: "campaign",
+      xKey: "month",
       yKey: "value",
       icon: "💹"
     }

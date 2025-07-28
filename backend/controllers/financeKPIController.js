@@ -1,6 +1,40 @@
 const FinanceKPI = require('../models/financeKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
 
+// Generate dummy finance data for demonstration
+const generateDummyFinanceData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic finance KPI data with trends
+    metrics.set('revenueGrowthRate', Math.round((5 + Math.random() * 15 + index * 0.5) * 100) / 100); // 5-20% growth
+    metrics.set('grossProfitMargin', Math.round((40 + Math.random() * 20 + index * 0.3) * 100) / 100); // 40-60%
+    metrics.set('netProfitMargin', Math.round((8 + Math.random() * 12 + index * 0.2) * 100) / 100); // 8-20%
+    metrics.set('operatingCashFlow', Math.round(50000 + Math.random() * 100000 + index * 5000)); // $50k-$200k
+    metrics.set('burnRate', Math.round(20000 + Math.random() * 30000 - index * 1000)); // $20k-$50k, decreasing
+    metrics.set('runway', Math.round(12 + Math.random() * 18 + index * 0.5)); // 12-30 months
+    metrics.set('ebitda', Math.round(30000 + Math.random() * 70000 + index * 3000)); // $30k-$130k
+    metrics.set('currentRatio', Math.round((1.2 + Math.random() * 1.3 + index * 0.05) * 100) / 100); // 1.2-2.5
+    metrics.set('arTurnover', Math.round((6 + Math.random() * 6 + index * 0.1) * 100) / 100); // 6-12 times
+    metrics.set('debtToEquity', Math.round((0.3 + Math.random() * 0.7 - index * 0.02) * 100) / 100); // 0.3-1.0, decreasing
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'finance',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
+
 
 /**
 * Upload Finance KPI Controller
@@ -120,13 +154,27 @@ exports.getFinanceKPI = async (req, res) => {
     const { companyId } = req.params;
 
     const financeKpi = await FinanceKPI.findOne({ companyId });
-    if (!financeKpi) {
-      // Create a new document with default values if none exists
+    if (!financeKpi || !financeKpi.data || financeKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummyFinanceData();
+      
+      // Create a new document with dummy data if none exists
       const newFinanceKPI = new FinanceKPI({
         companyId,
         department: 'finance',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'revenueGrowthRate',
+          'grossProfitMargin',
+          'netProfitMargin',
+          'operatingCashFlow',
+          'burnRate',
+          'runway',
+          'ebitda',
+          'currentRatio',
+          'arTurnover',
+          'debtToEquity'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
@@ -134,9 +182,14 @@ exports.getFinanceKPI = async (req, res) => {
         }
       });
       await newFinanceKPI.save();
+      
+      // Format data for charts using the utility function
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newFinanceKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 

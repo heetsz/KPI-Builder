@@ -1,6 +1,40 @@
 const MarketingKPI = require('../models/marketingKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
 
+// Generate dummy marketing data for demonstration
+const generateDummyMarketingData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic marketing KPI data with some variation and trends
+    metrics.set('customerAcquisitionCost', Math.round(50 + Math.random() * 100 + index * 5)); // $50-$200, increasing trend
+    metrics.set('returnOnMarketingInvestment', Math.round(200 + Math.random() * 150 + index * 10)); // 200-400%, improving
+    metrics.set('websiteTraffic', Math.round(5000 + Math.random() * 3000 + index * 200)); // 5k-10k visitors, growing
+    metrics.set('conversionRate', Math.round((2 + Math.random() * 3 + index * 0.1) * 100) / 100); // 2-5%, slight improvement
+    metrics.set('socialMediaEngagement', Math.round(1000 + Math.random() * 500 + index * 50)); // 1k-2k engagements
+    metrics.set('emailOpenRate', Math.round((20 + Math.random() * 15 + index * 0.5) * 100) / 100); // 20-35%
+    metrics.set('clickThroughRate', Math.round((1 + Math.random() * 3 + index * 0.1) * 100) / 100); // 1-4%
+    metrics.set('leadGenerationVolume', Math.round(100 + Math.random() * 80 + index * 10)); // 100-200 leads
+    metrics.set('marketingQualifiedLeads', Math.round(30 + Math.random() * 40 + index * 5)); // 30-80 MQLs
+    metrics.set('campaignROI', Math.round(150 + Math.random() * 100 + index * 8)); // 150-300% ROI
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'marketing',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
+
 /**
 * Upload Marketing KPI Controller
 */
@@ -121,13 +155,27 @@ exports.getMarketingKPI = async (req, res) => {
     const { companyId } = req.params;
 
     const marketingKpi = await MarketingKPI.findOne({ companyId });
-    if (!marketingKpi) {
-      // Create a new document with default values if none exists
+    if (!marketingKpi || !marketingKpi.data || marketingKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummyMarketingData();
+      
+      // Create a new document with dummy data if none exists
       const newMarketingKPI = new MarketingKPI({
         companyId,
         department: 'marketing',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'customerAcquisitionCost',
+          'returnOnMarketingInvestment',
+          'websiteTraffic',
+          'conversionRate',
+          'socialMediaEngagement',
+          'emailOpenRate',
+          'clickThroughRate',
+          'leadGenerationVolume',
+          'marketingQualifiedLeads',
+          'campaignROI'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
@@ -135,9 +183,14 @@ exports.getMarketingKPI = async (req, res) => {
         }
       });
       await newMarketingKPI.save();
+      
+      // Format data for charts using the utility function
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newMarketingKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 

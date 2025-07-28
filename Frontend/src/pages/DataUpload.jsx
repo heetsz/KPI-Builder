@@ -131,37 +131,14 @@ export default function DataEntryPage() {
   // Function to handle redirect to dashboard
   const handleViewDashboard = async () => {
     try {
-      const domainSlug = getDomainSlug(domain);
-      const endpoint = `${URL}/api/${domainSlug}/kpis/upload`;
-      
-      console.log("Making dashboard backend call to:", endpoint);
-      
-      // Create a simple payload
-      const payload = {
-        companyId: companyId,
-        dashboardAccess: true,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Make the API call
-      console.log("Payload for dashboard backend call:", payload);
-
-      const response = await axios.post(endpoint, payload, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      console.log("Dashboard backend call successful:", response.data);
-      
-      // Navigate to dashboard after successful call
+      // Navigate directly to dashboard since file was already uploaded successfully
       const dashboardRoute = getDashboardRoute();
+      console.log("Navigating to dashboard:", dashboardRoute);
       navigate(dashboardRoute);
     } catch (error) {
-      console.error("Dashboard backend call failed:", error);
-      // Still navigate to dashboard even if the call fails
-      const dashboardRoute = getDashboardRoute();
-      navigate(dashboardRoute);
+      console.error("Navigation error:", error);
+      // Fallback navigation
+      navigate('/dashboard/overview');
     }
   };
   
@@ -217,7 +194,7 @@ export default function DataEntryPage() {
     }
     
     setUploadedFile(file);
-    console.log(uploadFile);
+    console.log(uploadedFile);
     setUploadStatus('success');
     setUploadError('');
   };

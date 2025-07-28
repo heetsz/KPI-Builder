@@ -1,6 +1,40 @@
 const SalesKPI = require('../models/salesKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
 
+// Generate dummy sales data for demonstration
+const generateDummySalesData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic sales KPI data with trends
+    metrics.set('monthlyRecurringRevenue', Math.round(80000 + Math.random() * 40000 + index * 3000)); // $80k-$150k, growing
+    metrics.set('salesGrowthRate', Math.round((8 + Math.random() * 12 + index * 0.3) * 100) / 100); // 8-20% growth
+    metrics.set('salesTargetAchievement', Math.round((85 + Math.random() * 25 + index * 0.5) * 100) / 100); // 85-110%
+    metrics.set('leadToCustomerConversionRate', Math.round((15 + Math.random() * 15 + index * 0.2) * 100) / 100); // 15-30%
+    metrics.set('averageDealSize', Math.round(8000 + Math.random() * 7000 + index * 200)); // $8k-$15k
+    metrics.set('customerAcquisitionCost', Math.round(1200 + Math.random() * 800 - index * 30)); // $1.2k-$2k, decreasing
+    metrics.set('salesCycleLength', Math.round(45 + Math.random() * 30 - index * 1)); // 45-75 days, decreasing
+    metrics.set('leadResponseTime', Math.round((2 + Math.random() * 6 - index * 0.2) * 100) / 100); // 2-8 hours, decreasing
+    metrics.set('churnRate', Math.round((3 + Math.random() * 4 - index * 0.1) * 100) / 100); // 3-7%, decreasing
+    metrics.set('upsellCrosssellRate', Math.round((20 + Math.random() * 15 + index * 0.5) * 100) / 100); // 20-35%
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'sales',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
+
 
 // Controller to create the dashboard layout which revieves just the company Id and default layout
 exports.createDashboardLayout = async (req, res) => {
@@ -110,13 +144,27 @@ exports.getSalesKPI = async (req, res) => {
     const { companyId } = req.params;
 
     const salesKpi = await SalesKPI.findOne({ companyId });
-    if (!salesKpi) {
-      // Create a new document with default values if none exists
+    if (!salesKpi || !salesKpi.data || salesKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummySalesData();
+      
+      // Create a new document with dummy data if none exists
       const newSalesKPI = new SalesKPI({
         companyId,
         department: 'sales',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'monthlyRecurringRevenue',
+          'salesGrowthRate', 
+          'salesTargetAchievement',
+          'leadToCustomerConversionRate',
+          'averageDealSize',
+          'customerAcquisitionCost',
+          'salesCycleLength',
+          'leadResponseTime',
+          'churnRate',
+          'upsellCrosssellRate'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
@@ -124,9 +172,14 @@ exports.getSalesKPI = async (req, res) => {
         }
       });
       await newSalesKPI.save();
+      
+      // Format data for charts using the utility function
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newSalesKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 

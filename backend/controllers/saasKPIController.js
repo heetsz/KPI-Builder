@@ -1,5 +1,39 @@
-const SaaSKPI = require('../models/saasKPIModel');
+const SaasKPI = require('../models/saasKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
+
+// Generate dummy SaaS data for demonstration
+const generateDummySaasData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic SaaS KPI data with trends
+    metrics.set('monthlyRecurringRevenue', Math.round(45000 + Math.random() * 25000 + index * 2500)); // $45k-$100k, growing
+    metrics.set('annualRecurringRevenue', Math.round(540000 + Math.random() * 300000 + index * 30000)); // $540k-$1.2M, growing
+    metrics.set('customerChurnRate', Math.round((5 + Math.random() * 3 - index * 0.15) * 100) / 100); // 5-8%, decreasing
+    metrics.set('revenueChurnRate', Math.round((4 + Math.random() * 4 - index * 0.2) * 100) / 100); // 4-8%, decreasing
+    metrics.set('customerLifetimeValue', Math.round(4500 + Math.random() * 2500 + index * 150)); // $4.5k-$7k, growing
+    metrics.set('customerAcquisitionCost', Math.round(850 + Math.random() * 650 - index * 25)); // $850-$1500, decreasing
+    metrics.set('cacPaybackPeriod', Math.round((8 + Math.random() * 6 - index * 0.2) * 100) / 100); // 8-14 months, decreasing
+    metrics.set('activeUsers', Math.round(12000 + Math.random() * 8000 + index * 400)); // 12k-20k users, growing
+    metrics.set('productUsageRate', Math.round((65 + Math.random() * 20 + index * 0.8) * 100) / 100); // 65-85%, improving
+    metrics.set('netRevenueRetention', Math.round((105 + Math.random() * 15 + index * 0.5) * 100) / 100); // 105-120%, improving
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'saas',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
 
 /**
 * Upload SaaS KPI Controller
@@ -122,24 +156,42 @@ exports.getSaaSKPI = async (req, res) => {
   try {
     const { companyId } = req.params;
 
-    const saasKpi = await SaaSKPI.findOne({ companyId });
-    if (!saasKpi) {
-      // Create a new document with default values if none exists
-      const newSaaSKPI = new SaaSKPI({
+    const saasKpi = await SaasKPI.findOne({ companyId });
+    if (!saasKpi || !saasKpi.data || saasKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummySaasData();
+      
+      // Create a new document with dummy data if none exists
+      const newSaasKPI = new SaasKPI({
         companyId,
         department: 'saas',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'monthlyRecurringRevenue',
+          'annualRecurringRevenue',
+          'customerChurnRate',
+          'revenueChurnRate',
+          'customerLifetimeValue',
+          'customerAcquisitionCost',
+          'cacPaybackPeriod',
+          'activeUsers',
+          'productUsageRate',
+          'netRevenueRetention'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
           sm: []
         }
       });
-      await newSaaSKPI.save();
+      await newSaasKPI.save();
+      
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newSaasKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 

@@ -1,6 +1,40 @@
 const ManufacturingKPI = require('../models/manufacturingKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
 
+// Generate dummy manufacturing data for demonstration
+const generateDummyManufacturingData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic manufacturing KPI data with trends
+    metrics.set('productionVolume', Math.round(8000 + Math.random() * 4000 + index * 200)); // 8k-12k units, growing
+    metrics.set('oee', Math.round((72 + Math.random() * 15 + index * 0.5) * 100) / 100); // 72-87% OEE, improving
+    metrics.set('cycleTime', Math.round((45 + Math.random() * 20 - index * 0.8) * 100) / 100); // 45-65 minutes, decreasing
+    metrics.set('downtime', Math.round((8 + Math.random() * 6 - index * 0.3) * 100) / 100); // 8-14%, decreasing
+    metrics.set('yield', Math.round((92 + Math.random() * 6 + index * 0.2) * 100) / 100); // 92-98%, improving
+    metrics.set('scrapRate', Math.round((3 + Math.random() * 4 - index * 0.15) * 100) / 100); // 3-7%, decreasing
+    metrics.set('defectDensity', Math.round((15 + Math.random() * 10 - index * 0.5) * 100) / 100); // 15-25 defects/1000, decreasing
+    metrics.set('maintenanceCostPerUnit', Math.round((8 + Math.random() * 6 - index * 0.2) * 100) / 100); // $8-14, decreasing
+    metrics.set('inventoryTurnover', Math.round((10 + Math.random() * 6 + index * 0.3) * 100) / 100); // 10-16 times, improving
+    metrics.set('energyConsumptionPerUnit', Math.round((12 + Math.random() * 8 - index * 0.3) * 100) / 100); // 12-20 kWh, decreasing
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'manufacturing',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
+
 /**
 * Upload Manufacturing KPI Controller
 */
@@ -120,13 +154,27 @@ exports.getManufacturingKPI = async (req, res) => {
     const { companyId } = req.params;
 
     const manufacturingKpi = await ManufacturingKPI.findOne({ companyId });
-    if (!manufacturingKpi) {
-      // Create a new document with default values if none exists
+    if (!manufacturingKpi || !manufacturingKpi.data || manufacturingKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummyManufacturingData();
+      
+      // Create a new document with dummy data if none exists
       const newManufacturingKPI = new ManufacturingKPI({
         companyId,
         department: 'manufacturing',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'productionVolume',
+          'oee',
+          'cycleTime',
+          'downtime',
+          'yield',
+          'scrapRate',
+          'defectDensity',
+          'maintenanceCostPerUnit',
+          'inventoryTurnover',
+          'energyConsumptionPerUnit'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
@@ -134,9 +182,14 @@ exports.getManufacturingKPI = async (req, res) => {
         }
       });
       await newManufacturingKPI.save();
+      
+      // Format data for charts using the utility function
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newManufacturingKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 

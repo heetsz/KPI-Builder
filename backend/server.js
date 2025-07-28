@@ -28,6 +28,8 @@ app.use(cors({
   origin: "https://kpi-builder-tzml.onrender.com",
   credentials: true
 }));
+
+// app.use(cors());
 app.use(express.json());
 // JWT Configuration
 if (!process.env.JWT_SECRET) {

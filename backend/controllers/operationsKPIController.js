@@ -1,6 +1,40 @@
 const OperationsKPI = require('../models/operationsKPIModel');
 const { parseCSVFile, parseInlineCSV, transformRow, saveKPIData } = require('../services/commonServices');
 
+// Generate dummy operations data for demonstration
+const generateDummyOperationsData = () => {
+  const months = [
+    '2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01', '2024-06-01',
+    '2024-07-01', '2024-08-01', '2024-09-01', '2024-10-01', '2024-11-01', '2024-12-01'
+  ];
+
+  const kpiData = [];
+
+  months.forEach((month, index) => {
+    const metrics = new Map();
+    
+    // Generate realistic operations KPI data with trends
+    metrics.set('orderFulfillmentTime', Math.round((72 + Math.random() * 48 - index * 2) * 100) / 100); // 72-120 hours, decreasing
+    metrics.set('inventoryTurnover', Math.round((8 + Math.random() * 4 + index * 0.2) * 100) / 100); // 8-12 times, improving
+    metrics.set('stockOutRate', Math.round((5 + Math.random() * 3 - index * 0.1) * 100) / 100); // 5-8%, decreasing
+    metrics.set('orderAccuracyRate', Math.round((94 + Math.random() * 5 + index * 0.1) * 100) / 100); // 94-99%
+    metrics.set('supplyChainCycleTime', Math.round(14 + Math.random() * 7 - index * 0.3)); // 14-21 days, decreasing
+    metrics.set('warehouseUtilizationRate', Math.round((75 + Math.random() * 15 + index * 0.5) * 100) / 100); // 75-90%
+    metrics.set('logisticsCostPerUnit', Math.round((12 + Math.random() * 8 - index * 0.2) * 100) / 100); // $12-20, decreasing
+    metrics.set('returnRate', Math.round((3 + Math.random() * 4 - index * 0.1) * 100) / 100); // 3-7%, decreasing
+    metrics.set('procurementCycleTime', Math.round(10 + Math.random() * 8 - index * 0.3)); // 10-18 days, decreasing
+    metrics.set('forecastAccuracy', Math.round((82 + Math.random() * 12 + index * 0.3) * 100) / 100); // 82-94%
+
+    kpiData.push({
+      date: new Date(month),
+      department: 'operations',
+      metrics: metrics
+    });
+  });
+
+  return kpiData;
+};
+
 /**
 * Upload Operations KPI Controller
 */
@@ -121,12 +155,26 @@ exports.getOperationsKPI = async (req, res) => {
     const { companyId } = req.params;
 
     const operationsKpi = await OperationsKPI.findOne({ companyId });
-    if (!operationsKpi) {
+    if (!operationsKpi || !operationsKpi.data || operationsKpi.data.length === 0) {
+      // Generate dummy data for demonstration
+      const dummyData = generateDummyOperationsData();
+      
       const newOperationsKPI = new OperationsKPI({
         companyId,
         department: 'operations',
-        selectedKPIs: [],
-        data: [],
+        selectedKPIs: [
+          'orderFulfillmentTime',
+          'inventoryTurnover',
+          'stockOutRate',
+          'orderAccuracyRate',
+          'supplyChainCycleTime',
+          'warehouseUtilizationRate',
+          'logisticsCostPerUnit',
+          'returnRate',
+          'procurementCycleTime',
+          'forecastAccuracy'
+        ],
+        data: dummyData,
         dashboardLayout: {
           lg: [],
           md: [],
@@ -134,9 +182,13 @@ exports.getOperationsKPI = async (req, res) => {
         }
       });
       await newOperationsKPI.save();
+      
+      const { formatChartData } = require('../services/kpiProcessor');
+      const chartData = formatChartData(dummyData);
+      
       return res.status(200).json({
-        selectedKPIs: [],
-        kpis: {}
+        selectedKPIs: newOperationsKPI.selectedKPIs,
+        kpis: chartData
       });
     }
 
